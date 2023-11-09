@@ -21,10 +21,9 @@ app.use(
 
 app.use(express.json());
 
-app.use("/paymentImg", express.static(`${__dirname}/public/paymentImg`));
-
 //#region API ROUTES
-
+app.use("/admin", routes.adminRoutes);
+app.use("/event", routes.eventRoutes);
 // ===========================
 // NOTE : Add your routes here
 

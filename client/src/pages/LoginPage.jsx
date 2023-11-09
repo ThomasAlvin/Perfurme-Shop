@@ -9,9 +9,54 @@ import {
   InputGroup,
   InputRightElement,
 } from "@chakra-ui/react";
-import React from "react";
-
+import React, { useCallback, useState } from "react";
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
+import axios from "axios";
 export default function LoginPage() {
+  const dispatch = useDispatch();
+  const [login, setLogin] = useState({});
+  const [seePassword, setSeePassword] = useState(false);
+
+  const nav = useNavigate();
+  const handleKeyPress = useCallback((event) => {
+    if (event.key === "Enter") {
+      document.getElementById("submit").click();
+    }
+  }, []);
+  async function submit() {
+    const loggingIn = await axios
+      .post("http://localhost:2000/admin/login", login)
+      .then((res) => {
+        localStorage.setItem("auth", JSON.stringify(res.data.token));
+        console.log(localStorage.getItem("auth"));
+        token = res.data.token;
+        return res.data.message;
+      })
+      .catch((err) => {
+        console.log(err.response.data);
+      });
+    const token = JSON.parse(localStorage.getItem("auth"));
+    const user = await axios
+      .get("http://localhost:2000/auth/v3?token=" + token)
+      .then((res) => res.data)
+      .catch((err) => {
+        console.log(err.message);
+      });
+    if (user?.email) {
+      dispatch({
+        type: "login",
+        payload: { user },
+      });
+    }
+  }
+  function inputHandler(input) {
+    const { value, id } = input.target;
+    const tempobject = { ...login };
+    tempobject[id] = value;
+    setLogin(tempobject);
+  }
   return (
     <Center flexDir={"column"} gap={"10px"} pt={"30px"} w={"100%"}>
       <Center flexDir={"column"} gap={"80px"}>
@@ -38,17 +83,17 @@ export default function LoginPage() {
                   bgColor={"#fafafa"}
                   placeholder="Email or Phone Number"
                   pl={"15px"}
-                  // onChange={props.inputHandler}
-                  id="emus"
+                  onChange={inputHandler}
+                  id="username"
                 ></Input>
                 <InputGroup>
                   <Input
                     id="password"
-                    // onKeyPress={props.handleKeyPress}
+                    onKeyPress={handleKeyPress}
                     maxLength={32}
-                    // onChange={props.inputHandler}
+                    onChange={inputHandler}
                     fontSize={"12px"}
-                    // type={props.seePassword ? "text" : "password"}
+                    type={seePassword ? "text" : "password"}
                     border={"1px #878787 solid"}
                     placeholder="Create your password"
                   ></Input>
@@ -56,14 +101,10 @@ export default function LoginPage() {
                     <IconButton
                       colorScheme="whiteAlpha"
                       color={"grey"}
-                      // as={
-                      //   props.seePassword
-                      //     ? props.AiOutlineEye
-                      //     : props.AiOutlineEyeInvisible
-                      // }
+                      as={seePassword ? AiOutlineEye : AiOutlineEyeInvisible}
                       w={"24px"}
                       h={"24px"}
-                      // onClick={() => props.setSeePassword(!props.seePassword)}
+                      onClick={() => setSeePassword(!seePassword)}
                       cursor={"pointer"}
                     ></IconButton>
                   </InputRightElement>
@@ -74,7 +115,7 @@ export default function LoginPage() {
                   id="submit"
                   w={"100%"}
                   colorScheme="facebook"
-                  // onClick={() => submitLogin()}
+                  onClick={() => submit()}
                 >
                   Login
                 </Button>
@@ -102,19 +143,7 @@ export default function LoginPage() {
               flexDir={"column"}
               border={"1px solid #dbdbdb"}
               paddingY={"20px"}
-            >
-              <Flex fontSize={"14px"}>
-                Don't Have An Account?{" "}
-                <Flex
-                  fontSize={"14px"}
-                  color={"#0060ae"}
-                  cursor={"pointer"}
-                  // onClick={() => nav("/register")}
-                >
-                  &nbsp;Sign Up
-                </Flex>
-              </Flex>
-            </Center>
+            ></Center>
           </Center>
         </Center>
         <Center

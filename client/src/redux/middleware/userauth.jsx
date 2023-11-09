@@ -12,8 +12,7 @@ function userReducer(state = init, action) {
     return {
       ...state,
       id: action.payload.id,
-      email: action.payload.email,
-      admin_name: action.payload.name,
+      role: action.payload.role,
       username: action.payload.username,
       token: action.payload.token,
     };

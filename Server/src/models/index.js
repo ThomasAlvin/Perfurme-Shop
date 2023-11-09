@@ -1,5 +1,4 @@
 "use strict";
-
 const fs = require("fs");
 const path = require("path");
 const Sequelize = require("sequelize");
@@ -46,5 +45,14 @@ Object.keys(db).forEach((modelName) => {
 
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
+db.Admin = require("./admin")(sequelize, Sequelize);
+db.Event = require("./event")(sequelize, Sequelize);
+db.Token = require("./token")(sequelize, Sequelize);
+db.Event.belongsTo(db.Admin, {
+  foreignKey: "HR_ID",
+});
+db.Event.belongsTo(db.Admin, {
+  foreignKey: "Vendor_ID",
+});
 
 module.exports = db;
